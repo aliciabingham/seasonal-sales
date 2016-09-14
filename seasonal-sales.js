@@ -1,120 +1,71 @@
-function executeThisCodeIfXHRFails () {
-  console.log("An error occurred while transferring");
+var iife = (function () {
+var output = document.getElementById('output');
+
+var categoryRequest = new XMLHttpRequest();
+categoryRequest.open('GET', 'json/categories.json');
+categoryRequest.send();
+categoryRequest.addEventListener('load', categoryLoad)
+
+var productRequest = new XMLHttpRequest();
+productRequest.open('GET', 'json/products.json');
+productRequest.addEventListener('load', productLoad)
+
+var catData;
+var prodData;
+
+function categoryLoad() {
+  catData = JSON.parse(this.responseText).categories;
+  productRequest.send();
 }
 
-function executeThisCodeWhenChunksArrive () {
+function productLoad() {
+  prodData = JSON.parse(this.responseText).products;
+  parseToDom();
 }
 
-function executeThisCodeAfterFileLoaded () {
+function parseToDom(discountedSeason) {
+  output.innerHTML = "";
 
-var categories = {};
-var products = {};
+  for (i = 0; i < catData.length; i++) {
+    currentCat = catData[i];
+    var catDataHtml = '<h3>' + 'Department:' + '</h3>'
+    catDataHtml += `<div id='currentCat${currentCat.id}'><h1>${currentCat.name}</h1>`;
 
-  var contentEl = document.getElementById("output")
+    var productsMatchingCurrentCategory = prodData.filter(function(el) {
+      return currentCat.id === el.category_id;
+    })
 
-   var prodData = "";
-   var currentProd;
+    for (j = 0; j < productsMatchingCurrentCategory.length; j++) {
+      currentProd = productsMatchingCurrentCategory[j];
+      catDataHtml += `<div>${currentProd.name}`;
+      if (currentCat.season_discount === discountedSeason) {
+      catDataHtml += `<div>${(currentProd.price - (currentProd.price*currentCat.discount)).toFixed(2)}`;
+      } else {
+      catDataHtml += `<div>${currentProd.price}`;
+      }
+      catDataHtml += `</div>`
+      catDataHtml += `</div>`
+    }
+    catDataHtml += `</div>`
 
-products = JSON.parse(this.responseText);
-
-console.log(categories)
-console.log(products)
-
-for (j=0; j < products.length; j++){
-  currentProd = products.products[j];
-
-  prodData += "div class='current-product'>" + "Product:";
-    prodData += `<h1>${currentProd.name}</h1>`;
-  prodData += "</div>"
-
-  console.log(prodData);
-  contentEl.innerHTML = prodData;
-}
-   var catData = "";
-   var currentCat;
-categories = JSON.parse(this.responseText);
-
-  for (var i = 0; i < categories.length; i++) {
-    currentCat = categories.categories[i];
-
-    catData += "<div class='current-category'>" + "<h1>" + "Department: " + "</h1>";
-      catData += `<h1>${currentCat.name}</h1>`;
-      catData += "<div class='department'>";
-      catData += "</div>";
-    catData += "</div>";
-
-
-  };
-
-  console.log(catData);
-  contentEl.innerHTML += catData;
+    output.innerHTML += catDataHtml;
+  }
 }
 
+document.getElementById('winter').addEventListener('change', winterFunction)
+document.getElementById('spring').addEventListener('change', springFunction)
+document.getElementById('autumn').addEventListener('change', autumnFunction)
 
-var myRequest = new XMLHttpRequest();
-// console.log("myRequest", myRequest);
+function autumnFunction() {
+  parseToDom('Autumn');
+}
 
-myRequest.addEventListener("load", executeThisCodeAfterFileLoaded); //Callback
-myRequest.addEventListener("error", executeThisCodeIfXHRFails)
-myRequest.addEventListener("progress", executeThisCodeWhenChunksArrive)
-myRequest.open("GET", "categories.json")
-myRequest.send();
+function winterFunction() {
+  parseToDom('Winter');
+}
 
-var myNewRequest = new XMLHttpRequest();
-
-myNewRequest.addEventListener("load", executeThisCodeAfterFileLoaded);
-myNewRequest.addEventListener("error", executeThisCodeIfXHRFails);
-myNewRequest.addEventListener("progress", executeThisCodeWhenChunksArrive);
-myNewRequest.open("GET", "products.json")
-myNewRequest.send();
-
-
-    // var domains = [
-    // 'host1',
-    // 'host2'
-    // ];
-
-    // var requests = new Array();
-
-    // for ( i in domains )
-    // {
-    //     requests[i]=new request(domains[i]);
-    // }
-
-    // function request(site)
-    // {
-    //     var url = 'get_remote_status.php?host='+site;
-    //     var queues = {};
-    //     http_request = new XMLHttpRequest();
-    //     http_request.open("GET", url, true, 'username', 'password');
-    //     http_request.onreadystatechange = function () {
-    //         var done = 4, ok = 200;
-    //         if (http_request.readyState == done && http_request.status == ok) {
-    //             queues = JSON.parse(http_request.responseText);
-    //             var queuesDiv = document.getElementById('queues');
-    //             print_queues(queues, queuesDiv, site);
-    //         }
-    //     };
-    //     http_request.send(null);
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function springFunction() {
+  parseToDom('Spring');
+}
+}
+)();
