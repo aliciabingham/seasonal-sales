@@ -17,4 +17,4 @@ http-server -p 4040
 then navigate to http://127.0.0.1:4040 in your browser.
 
 ## Contributors
-- [Alicia Miceli](http://github.com/aliciamiceli
+- [Alicia Miceli](http://github.com/aliciamiceli)
